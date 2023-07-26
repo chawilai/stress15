@@ -1,223 +1,20 @@
-<template>
-  <div class="max-w-2xl p-4 mx-auto my-6 bg-white rounded-lg shadow sm:px-6 lg:px-8">
-    <div
-      v-for="(question, index) in questions"
-      :key="index"
-      class="pt-4 pb-3 mx-3 border-b-2 border-gray-300"
-    >
-      <span class="mr-2 font-bold">ข้อที่ {{ index + 1 }} </span
-      ><span class="font-medium">{{ question.question }}</span>
-      <div class="py-3">
-        <div class="flex flex-col px-2 py-2 md:flex-row sm:w-full lg:w-auto">
-          <label
-            class="flex items-center h-10 px-2 mr-4 rounded-md hover:text-white hover:bg-purple-600"
-            :class="{
-              'text-white bg-purple-600':
-                answered[`question${index + 1}`] &&
-                answered[`question${index + 1}`].answer_score == question.never
-                  ? true
-                  : false,
-            }"
-          >
-            <input
-              class="mr-1 border-2 hover:border-white animations_input"
-              :class="
-                answered[`question${index + 1}`] &&
-                answered[`question${index + 1}`].answer_score == question.never
-                  ? 'border-white'
-                  : 'border-gray-900'
-              "
-              type="radio"
-              :name="'choice_' + [index + 1]"
-              @change="calculateScore($event, index, 1)"
-              v-model="question.selectedAnswer"
-              :value="question.never"
-            />
-            <span>ไม่เลย</span>
-          </label>
-          <label
-            class="flex items-center h-10 px-2 mr-4 rounded-md hover:text-white hover:bg-purple-600"
-            :class="{
-              'text-white bg-purple-600':
-                answered[`question${index + 1}`] &&
-                answered[`question${index + 1}`].answer_score == question.middle
-                  ? true
-                  : false,
-            }"
-          >
-            <input
-              class="mr-1 border-2 hover:border-white animations_input"
-              :class="
-                answered[`question${index + 1}`] &&
-                answered[`question${index + 1}`].answer_score == question.middle
-                  ? 'border-white'
-                  : 'border-gray-900'
-              "
-              type="radio"
-              :name="'choice_' + [index + 1]"
-              @change="calculateScore($event, index, 2)"
-              v-model="question.selectedAnswer"
-              :value="question.middle"
-            />
-            <span>เล็กน้อย</span>
-          </label>
-          <label
-            class="flex items-center h-10 px-2 mr-4 rounded-md hover:text-white hover:bg-purple-600"
-            :class="{
-              'text-white bg-purple-600':
-                answered[`question${index + 1}`] &&
-                answered[`question${index + 1}`].answer_score == question.big
-                  ? true
-                  : false,
-            }"
-          >
-            <input
-              class="mr-1 border-2 hover:border-white animations_input"
-              :class="
-                answered[`question${index + 1}`] &&
-                answered[`question${index + 1}`].answer_score == question.big
-                  ? 'border-white'
-                  : 'border-gray-900'
-              "
-              type="radio"
-              :name="'choice_' + [index + 1]"
-              @change="calculateScore($event, index, 3)"
-              v-model="question.selectedAnswer"
-              :value="question.big"
-            />
-            <span>มาก</span>
-          </label>
-          <label
-            class="flex items-center h-10 px-2 mr-4 rounded-md hover:text-white hover:bg-purple-600"
-            :class="{
-              'text-white bg-purple-600':
-                answered[`question${index + 1}`] &&
-                answered[`question${index + 1}`].answer_score == question.biggest
-                  ? true
-                  : false,
-            }"
-          >
-            <input
-              class="mr-1 border-2 hover:border-white animations_input"
-              :class="
-                answered[`question${index + 1}`] &&
-                answered[`question${index + 1}`].answer_score == question.biggest
-                  ? 'border-white'
-                  : 'border-gray-900'
-              "
-              type="radio"
-              :name="'choice_' + [index + 1]"
-              @change="calculateScore($event, index, 4)"
-              v-model="question.selectedAnswer"
-              :value="question.biggest"
-            />
-            <span>มากที่สุด</span>
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="my-5 text-center">
-      <button class="px-4 py-2 text-white bg-indigo-500 rounded" v-on:click="doSomething">
-        ส่งแบบสอบถาม
-      </button>
-    </div>
-  </div>
-</template>
-
 <script>
-import axios from "axios";
-import Swal from "sweetalert2";
+import axios from 'axios';
+import Swal from 'sweetalert2';
 export default {
   data() {
     return {
       totalScore: 0,
       user: {
         user_info: {
-          user_first_name: "อลิซ",
-          user_last_name: "แซมเบอร์ก",
+          user_first_name: 'อลิซ',
+          user_last_name: 'แซมเบอร์ก',
           user_id_card: 406,
           user_total: null,
-          user_data: "2023-07-22 11:10:00",
+          user_data: '2023-07-22 11:10:00',
         },
       },
       answered: {},
-      // answered: {
-      //     question1: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question2: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question3: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question4: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question5: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question6: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question7: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question8: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question9: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question10: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question11: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question12: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question13: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question14: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      //   question15: {
-      //       answer_timestamp: '2023-07-22 11:10:00',
-      //       answer_choice: 1,
-      //       answer_score: 3
-      //   },
-      // },
       questions: [
         {
           questions_id: 1,
@@ -225,7 +22,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านรู้สึกว่าชีวิตของท่านมีความสุข",
+          question: 'ท่านรู้สึกว่าชีวิตของท่านมีความสุข',
           selectedAnswer: null,
         },
         {
@@ -234,7 +31,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านรู้สึกภูมิใจในตนเอง",
+          question: 'ท่านรู้สึกภูมิใจในตนเอง',
           selectedAnswer: null,
         },
         {
@@ -244,7 +41,7 @@ export default {
           big: 1,
           biggest: 0,
           question:
-            "ท่านต้องไปรับการรักษาพยาบาลเสมอ ๆ เพื่อให้สามารถดำเนินชีวิตและทำงานได้",
+            'ท่านต้องไปรับการรักษาพยาบาลเสมอ ๆ เพื่อให้สามารถดำเนินชีวิตและทำงานได้',
           selectedAnswer: null,
         },
         {
@@ -253,7 +50,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านพึงพอใจในรูปร่างหน้าตาของท่าน",
+          question: 'ท่านพึงพอใจในรูปร่างหน้าตาของท่าน',
           selectedAnswer: null,
         },
         {
@@ -262,7 +59,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านมีสัมพันธภาพที่ดีกับเพื่อนบ้าน",
+          question: 'ท่านมีสัมพันธภาพที่ดีกับเพื่อนบ้าน',
           selectedAnswer: null,
         },
         {
@@ -271,7 +68,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านรู้สึกประสบความสำเร็จและความก้าวหน้าในชีวิต",
+          question: 'ท่านรู้สึกประสบความสำเร็จและความก้าวหน้าในชีวิต',
           selectedAnswer: null,
         },
         {
@@ -280,7 +77,7 @@ export default {
           middle: 2,
           big: 1,
           biggest: 0,
-          question: "ท่านมั่นใจที่จะเผชิญกับเหตุการณ์ร้ายแรงที่เกิดขึ้นในชีวิต",
+          question: 'ท่านมั่นใจที่จะเผชิญกับเหตุการณ์ร้ายแรงที่เกิดขึ้นในชีวิต',
           selectedAnswer: null,
         },
         {
@@ -289,7 +86,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ถ้าสิ่งต่างๆ ไม่เป็นไปตามที่คาดหวัง ท่านจะรู้สึกหงุดหงิด",
+          question: 'ถ้าสิ่งต่างๆ ไม่เป็นไปตามที่คาดหวัง ท่านจะรู้สึกหงุดหงิด',
           selectedAnswer: null,
         },
         {
@@ -298,7 +95,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านสามารถปฏิบัติกิจวัตรประจำวันต่าง ๆ ด้วยตัวท่านเอง",
+          question: 'ท่านสามารถปฏิบัติกิจวัตรประจำวันต่าง ๆ ด้วยตัวท่านเอง',
           selectedAnswer: null,
         },
         {
@@ -307,7 +104,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านรู้สึกเป็นสุขในการช่วยเหลือผู้อื่นที่มีปัญหา",
+          question: 'ท่านรู้สึกเป็นสุขในการช่วยเหลือผู้อื่นที่มีปัญหา',
           selectedAnswer: null,
         },
         {
@@ -316,7 +113,8 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านมีความสุขกับการริเริ่มงานใหม่ๆ และมุ่งมั่นที่จะทำให้สำเร็จ",
+          question:
+            'ท่านมีความสุขกับการริเริ่มงานใหม่ๆ และมุ่งมั่นที่จะทำให้สำเร็จ',
           selectedAnswer: null,
         },
         {
@@ -325,7 +123,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านรู้สึกว่าชีวิตของท่านไร้ค่า ไม่มีประโยชน์",
+          question: 'ท่านรู้สึกว่าชีวิตของท่านไร้ค่า ไม่มีประโยชน์',
           selectedAnswer: null,
         },
         {
@@ -334,7 +132,8 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านมีเพื่อนหรือญาติพี่น้องคอยช่วยเหลือท่านในยามที่ท่านต้องการ",
+          question:
+            'ท่านมีเพื่อนหรือญาติพี่น้องคอยช่วยเหลือท่านในยามที่ท่านต้องการ',
           selectedAnswer: null,
         },
         {
@@ -343,7 +142,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านมั่นใจว่าชุมชนที่ท่านอยู่อาศัยมีความปลอดภัยต่อท่าน",
+          question: 'ท่านมั่นใจว่าชุมชนที่ท่านอยู่อาศัยมีความปลอดภัยต่อท่าน',
           selectedAnswer: null,
         },
         {
@@ -352,7 +151,7 @@ export default {
           middle: 1,
           big: 2,
           biggest: 3,
-          question: "ท่านมีโอกาสได้พักผ่อนคลายเครียด",
+          question: 'ท่านมีโอกาสได้พักผ่อนคลายเครียด',
           selectedAnswer: null,
         },
         // เพิ่มข้อมูลเพิ่มเติมตามต้องการ
@@ -381,13 +180,13 @@ export default {
       // console.log(this.answered);
 
       if (this.totalScore >= 0 && this.totalScore <= 20) {
-        this.assessment = "มีความสุขน้อยกว่าคนทั่วไป ";
+        this.assessment = 'มีความสุขน้อยกว่าคนทั่วไป ';
       } else if (this.totalScore >= 21 && this.totalScore <= 40) {
-        this.assessment = "มีความสุขเท่ากับคนทั่วไป ";
+        this.assessment = 'มีความสุขเท่ากับคนทั่วไป ';
       } else if (this.totalScore >= 44 && this.totalScore <= 60) {
-        this.assessment = "มีความสุขมากกว่าคนทั่วไป ";
+        this.assessment = 'มีความสุขมากกว่าคนทั่วไป ';
       } else {
-        this.assessment = "สุขภาพดีมาก";
+        this.assessment = 'สุขภาพดีมาก';
       }
     },
     calculateTotalSelectedAnswer() {
@@ -400,38 +199,67 @@ export default {
     },
 
     isAllQuestionsAnswered() {
-      return this.questions.every((question) => question.selectedAnswer !== null);
+      return this.questions.every(
+        (question) => question.selectedAnswer !== null
+      );
+    },
+
+    scrollToTop() {
+      window.scrollTo({top: 0, behavior: 'smooth'});
     },
 
     doSomething() {
+      // this.scrollToTop()
       if (this.isAllQuestionsAnswered()) {
         this.totalScore = this.calculateTotalSelectedAnswer();
         // ส่วนอื่น ๆ ของฟังก์ชัน doSomething()
         Swal.fire({
-          title: "คะแนนทั้งหมดคือ: " + this.totalScore,
-          text: "การประเมิน: " + this.assessment,
-          icon: "success",
-          willClose() {
-          },
-        });
-      } else {
-        Swal.fire({
-          title: "แจ้งเตือน",
-          text: "กรุณาตอบคำถามทุกข้อก่อนแสดงคะแนน",
-          icon: "warning",
-          willClose() {
+          title: 'คะแนนรวม = ' + this.totalScore,
+          text: 'ผลการประเมิน: ' + this.assessment,
+          confirmButtonText: 'ทำอีกครั้ง',
+          icon: 'success',
+          didClose: () => {
+            // this.scrollToTop()
+            window.scrollTo({top: 0, behavior: 'smooth'});
           },
         }).then((result) => {
           if (result.isConfirmed) {
             // ส่ง ข้อมูล
-            fetch("/saveData", {
-              totalScore: this.totalScore,
-              user: this.user,
-              answered: this.answered,
-            }).then(response => response.json())
-              .then(data => {
-                console.log(data)
-              });
+            this.answered = {}
+            this.totalScore = 0
+
+            // fetch('/saveData', {
+            //   totalScore: this.totalScore,
+            //   user: this.user,
+            //   answered: this.answered,
+            // })
+            //   .then((response) => response.json())
+            //   .then((data) => {
+            //     console.log(data);
+            //   });
+          }
+        });
+      } else {
+        Swal.fire({
+          title: 'แจ้งเตือน',
+          text: 'โปรดตอบคำถามให้ครบทุกข้อ',
+          icon: 'warning',
+          confirmButtonText: 'ตกลง',
+          didClose: () => {
+            this.scrollToTop()
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // ส่ง ข้อมูล
+            // fetch('/saveData', {
+            //   totalScore: this.totalScore,
+            //   user: this.user,
+            //   answered: this.answered,
+            // })
+            //   .then((response) => response.json())
+            //   .then((data) => {
+            //     console.log(data);
+            //   });
           }
         });
       }
@@ -440,8 +268,141 @@ export default {
 };
 </script>
 
+<template>
+  <div
+    class="max-w-2xl p-4 mx-auto my-6 bg-white rounded-lg shadow sm:px-6 lg:px-8"
+  >
+    <div
+      v-for="(question, index) in questions"
+      :key="index"
+      class="pt-4 pb-3 mx-3 border-b-2 border-gray-300"
+    >
+      <span class="mr-2 font-bold">ข้อที่ {{ index + 1 }} </span
+      ><span class="font-medium">{{ question.question }}</span>
+      <div class="py-3">
+        <div class="flex flex-col px-2 py-2 md:flex-row sm:w-full lg:w-auto">
+          <label
+            class="flex items-center h-10 px-2 mr-4 rounded-md cursor-pointer hover:text-white hover:bg-purple-600"
+            :class="{
+              'text-white bg-purple-600':
+                answered[`question${index + 1}`] &&
+                answered[`question${index + 1}`].answer_score == question.never
+                  ? true
+                  : false,
+            }"
+          >
+            <input
+              class="mr-1 border-2 hover:border-white animations_input"
+              :class="
+                answered[`question${index + 1}`] &&
+                answered[`question${index + 1}`].answer_score == question.never
+                  ? 'border-white'
+                  : 'border-gray-900'
+              "
+              type="radio"
+              :name="'choice_' + [index + 1]"
+              @change="calculateScore($event, index, 1)"
+              v-model="question.selectedAnswer"
+              :value="question.never"
+            />
+            <span>ไม่เลย</span>
+          </label>
+          <label
+            class="flex items-center h-10 px-2 mr-4 rounded-md cursor-pointer hover:text-white hover:bg-purple-600"
+            :class="{
+              'text-white bg-purple-600':
+                answered[`question${index + 1}`] &&
+                answered[`question${index + 1}`].answer_score == question.middle
+                  ? true
+                  : false,
+            }"
+          >
+            <input
+              class="mr-1 border-2 hover:border-white animations_input"
+              :class="
+                answered[`question${index + 1}`] &&
+                answered[`question${index + 1}`].answer_score == question.middle
+                  ? 'border-white'
+                  : 'border-gray-900'
+              "
+              type="radio"
+              :name="'choice_' + [index + 1]"
+              @change="calculateScore($event, index, 2)"
+              v-model="question.selectedAnswer"
+              :value="question.middle"
+            />
+            <span>เล็กน้อย</span>
+          </label>
+          <label
+            class="flex items-center h-10 px-2 mr-4 rounded-md cursor-pointer hover:text-white hover:bg-purple-600"
+            :class="{
+              'text-white bg-purple-600':
+                answered[`question${index + 1}`] &&
+                answered[`question${index + 1}`].answer_score == question.big
+                  ? true
+                  : false,
+            }"
+          >
+            <input
+              class="mr-1 border-2 hover:border-white animations_input"
+              :class="
+                answered[`question${index + 1}`] &&
+                answered[`question${index + 1}`].answer_score == question.big
+                  ? 'border-white'
+                  : 'border-gray-900'
+              "
+              type="radio"
+              :name="'choice_' + [index + 1]"
+              @change="calculateScore($event, index, 3)"
+              v-model="question.selectedAnswer"
+              :value="question.big"
+            />
+            <span>มาก</span>
+          </label>
+          <label
+            class="flex items-center h-10 px-2 mr-4 rounded-md cursor-pointer hover:text-white hover:bg-purple-600"
+            :class="{
+              'text-white bg-purple-600':
+                answered[`question${index + 1}`] &&
+                answered[`question${index + 1}`].answer_score ==
+                  question.biggest
+                  ? true
+                  : false,
+            }"
+          >
+            <input
+              class="mr-1 border-2 hover:border-white animations_input"
+              :class="
+                answered[`question${index + 1}`] &&
+                answered[`question${index + 1}`].answer_score ==
+                  question.biggest
+                  ? 'border-white'
+                  : 'border-gray-900'
+              "
+              type="radio"
+              :name="'choice_' + [index + 1]"
+              @change="calculateScore($event, index, 4)"
+              v-model="question.selectedAnswer"
+              :value="question.biggest"
+            />
+            <span>มากที่สุด</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="my-5 text-center">
+      <button
+        class="px-4 py-2 text-white bg-indigo-500 rounded"
+        @click="doSomething"
+      >
+        ส่งแบบสอบถาม
+      </button>
+    </div>
+  </div>
+</template>
+
 <style>
-.animations_input[type="radio"] {
+.animations_input[type='radio'] {
   appearance: none;
   -webkit-appearance: none;
   width: 20px;
@@ -453,8 +414,8 @@ export default {
   position: relative;
 }
 
-.animations_input[type="radio"]:checked::before {
-  content: "";
+.animations_input[type='radio']:checked::before {
+  content: '';
   display: block;
   width: 11px;
   height: 11px;
